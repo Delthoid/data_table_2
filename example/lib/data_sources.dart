@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -93,8 +91,7 @@ class DessertDataSource extends DataTableSource {
   DessertDataSource(this.context,
       [sortedByCalories = false,
       this.hasRowTaps = false,
-      this.hasRowHeightOverrides = false,
-      this.hasZebraStripes = false]) {
+      this.hasRowHeightOverrides = false]) {
     desserts = _desserts;
     if (sortedByCalories) {
       sort((d) => d.calories, true);
@@ -103,12 +100,8 @@ class DessertDataSource extends DataTableSource {
 
   final BuildContext context;
   late List<Dessert> desserts;
-  // Add row tap handlers and show snackbar
-  bool hasRowTaps = false;
-  // Override height values for certain rows
-  bool hasRowHeightOverrides = false;
-  // Color each Row by index's parity
-  bool hasZebraStripes = false;
+  late bool hasRowTaps;
+  late bool hasRowHeightOverrides;
 
   void sort<T>(Comparable<T> Function(Dessert d) getField, bool ascending) {
     desserts.sort((a, b) {
@@ -121,6 +114,7 @@ class DessertDataSource extends DataTableSource {
     notifyListeners();
   }
 
+  int _selectedCount = 0;
   void updateSelectedDesserts(RestorableDessertSelections selectedRows) {
     _selectedCount = 0;
     for (var i = 0; i < desserts.length; i += 1) {
@@ -136,7 +130,7 @@ class DessertDataSource extends DataTableSource {
   }
 
   @override
-  DataRow getRow(int index, [Color? color]) {
+  DataRow getRow(int index) {
     final format = NumberFormat.decimalPercentPattern(
       locale: 'en',
       decimalDigits: 0,
@@ -147,48 +141,47 @@ class DessertDataSource extends DataTableSource {
     return DataRow2.byIndex(
       index: index,
       selected: dessert.selected,
-      color: color != null
-          ? MaterialStateProperty.all(color)
-          : (hasZebraStripes && index.isEven
-              ? MaterialStateProperty.all(Theme.of(context).highlightColor)
-              : null),
-      onSelectChanged: (value) {
-        if (dessert.selected != value) {
-          _selectedCount += value! ? 1 : -1;
-          assert(_selectedCount >= 0);
-          dessert.selected = value;
-          notifyListeners();
-        }
-      },
+      onSelectChanged: hasRowTaps
+          ? null
+          : (value) {
+              if (dessert.selected != value) {
+                _selectedCount += value! ? 1 : -1;
+                assert(_selectedCount >= 0);
+                dessert.selected = value;
+                notifyListeners();
+              }
+            },
       onTap: hasRowTaps
-          ? () => _showSnackbar(context, 'Tapped on row ${dessert.name}')
+          ? () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: Duration(seconds: 1),
+                content: Text('Tapped on ${dessert.name}'),
+              ))
           : null,
       onDoubleTap: hasRowTaps
-          ? () => _showSnackbar(context, 'Double Tapped on row ${dessert.name}')
-          : null,
-      onLongPress: hasRowTaps
-          ? () => _showSnackbar(context, 'Long pressed on row ${dessert.name}')
+          ? () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: Duration(seconds: 1),
+                backgroundColor: Theme.of(context).focusColor,
+                content: Text('Double Tapped on ${dessert.name}'),
+              ))
           : null,
       onSecondaryTap: hasRowTaps
-          ? () => _showSnackbar(context, 'Right clicked on row ${dessert.name}')
-          : null,
-      onSecondaryTapDown: hasRowTaps
-          ? (d) =>
-              _showSnackbar(context, 'Right button down on row ${dessert.name}')
+          ? () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: Duration(seconds: 1),
+                backgroundColor: Theme.of(context).errorColor,
+                content: Text('Right clicked on ${dessert.name}'),
+              ))
           : null,
       specificRowHeight:
-          hasRowHeightOverrides && dessert.fat >= 25 ? 100 : null,
+          this.hasRowHeightOverrides && dessert.fat >= 25 ? 100 : null,
       cells: [
         DataCell(Text(dessert.name)),
-        DataCell(Text('${dessert.calories}'),
-            onTap: () => _showSnackbar(context,
-                'Tapped on a cell with "${dessert.calories}"', Colors.red)),
+        DataCell(Text('${dessert.calories}')),
         DataCell(Text(dessert.fat.toStringAsFixed(1))),
         DataCell(Text('${dessert.carbs}')),
         DataCell(Text(dessert.protein.toStringAsFixed(1))),
         DataCell(Text('${dessert.sodium}')),
-        DataCell(Text(format.format(dessert.calcium / 100))),
-        DataCell(Text(format.format(dessert.iron / 100))),
+        DataCell(Text('${format.format(dessert.calcium / 100)}')),
+        DataCell(Text('${format.format(dessert.iron / 100)}')),
       ],
     );
   }
@@ -253,22 +246,22 @@ class DessertDataSourceAsync extends AsyncDataTableSource {
 
   Future<int> getTotalRecords() {
     return Future<int>.delayed(
-        const Duration(milliseconds: 0), () => _empty ? 0 : _dessertsX3.length);
+        Duration(milliseconds: 0), () => _empty ? 0 : _dessertsX3.length);
   }
 
   @override
-  Future<AsyncRowsResponse> getRows(int start, int end) async {
-    print('getRows($start, $end)');
+  Future<AsyncRowsResponse> getRows(int startIndex, int count) async {
+    print('getRows($startIndex, $count)');
     if (_errorCounter != null) {
       _errorCounter = _errorCounter! + 1;
 
       if (_errorCounter! % 2 == 1) {
-        await Future.delayed(const Duration(milliseconds: 1000));
+        await Future.delayed(Duration(milliseconds: 1000));
         throw 'Error #${((_errorCounter! - 1) / 2).round() + 1} has occured';
       }
     }
 
-    var index = start;
+    var index = startIndex;
     final format = NumberFormat.decimalPercentPattern(
       locale: 'en',
       decimalDigits: 0,
@@ -277,10 +270,10 @@ class DessertDataSourceAsync extends AsyncDataTableSource {
 
     // List returned will be empty is there're fewer items than startingAt
     var x = _empty
-        ? await Future.delayed(const Duration(milliseconds: 2000),
+        ? await Future.delayed(Duration(milliseconds: 2000),
             () => DesertsFakeWebServiceResponse(0, []))
         : await _repo.getData(
-            start, end, _caloriesFilter, _sortColumn, _sortAscending);
+            startIndex, count, _caloriesFilter, _sortColumn, _sortAscending);
 
     var r = AsyncRowsResponse(
         x.totalRecords,
@@ -289,9 +282,8 @@ class DessertDataSourceAsync extends AsyncDataTableSource {
             key: ValueKey<int>(dessert.id),
             selected: dessert.selected,
             onSelectChanged: (value) {
-              if (value != null) {
+              if (value != null)
                 setRowSelection(ValueKey<int>(dessert.id), value);
-              }
             },
             cells: [
               DataCell(Text(dessert.name)),
@@ -300,8 +292,8 @@ class DessertDataSourceAsync extends AsyncDataTableSource {
               DataCell(Text('${dessert.carbs}')),
               DataCell(Text(dessert.protein.toStringAsFixed(1))),
               DataCell(Text('${dessert.sodium}')),
-              DataCell(Text(format.format(dessert.calcium / 100))),
-              DataCell(Text(format.format(dessert.iron / 100))),
+              DataCell(Text('${format.format(dessert.calcium / 100)}')),
+              DataCell(Text('${format.format(dessert.iron / 100)}')),
             ],
           );
         }).toList());
@@ -372,8 +364,6 @@ class DesertsFakeWebService {
     });
   }
 }
-
-int _selectedCount = 0;
 
 List<Dessert> _desserts = <Dessert>[
   Dessert(
@@ -679,15 +669,7 @@ List<Dessert> _desserts = <Dessert>[
 ];
 
 List<Dessert> _dessertsX3 = _desserts.toList()
-  ..addAll(_desserts.map((i) => Dessert('${i.name} x2', i.calories, i.fat,
+  ..addAll(_desserts.map((i) => Dessert(i.name + ' x2', i.calories, i.fat,
       i.carbs, i.protein, i.sodium, i.calcium, i.iron)))
-  ..addAll(_desserts.map((i) => Dessert('${i.name} x3', i.calories, i.fat,
+  ..addAll(_desserts.map((i) => Dessert(i.name + ' x3', i.calories, i.fat,
       i.carbs, i.protein, i.sodium, i.calcium, i.iron)));
-
-_showSnackbar(BuildContext context, String text, [Color? color]) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    backgroundColor: color,
-    duration: const Duration(seconds: 1),
-    content: Text(text),
-  ));
-}

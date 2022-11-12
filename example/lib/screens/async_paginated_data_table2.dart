@@ -1,31 +1,28 @@
-// ignore_for_file: avoid_print
-
 import 'dart:async';
 
+import 'package:example/custom_pager.dart';
+import 'package:example/data_sources.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 
-import '../helper.dart';
 import '../nav_helper.dart';
-import '../custom_pager.dart';
-import '../data_sources.dart';
 
 class AsyncPaginatedDataTable2Demo extends StatefulWidget {
-  const AsyncPaginatedDataTable2Demo({super.key});
+  const AsyncPaginatedDataTable2Demo();
 
   @override
-  AsyncPaginatedDataTable2DemoState createState() =>
-      AsyncPaginatedDataTable2DemoState();
+  _AsyncPaginatedDataTable2DemoState createState() =>
+      _AsyncPaginatedDataTable2DemoState();
 }
 
-class AsyncPaginatedDataTable2DemoState
+class _AsyncPaginatedDataTable2DemoState
     extends State<AsyncPaginatedDataTable2Demo> {
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   bool _sortAscending = true;
   int? _sortColumnIndex;
   DessertDataSourceAsync? _dessertsDataSource;
-  final PaginatorController _controller = PaginatorController();
+  PaginatorController _controller = PaginatorController();
 
   bool _dataSourceLoading = false;
   int _initialRow = 0;
@@ -33,11 +30,13 @@ class AsyncPaginatedDataTable2DemoState
   @override
   void didChangeDependencies() {
     // initState is to early to access route options, context is invalid at that stage
-    _dessertsDataSource ??= getCurrentRouteOption(context) == noData
-        ? DessertDataSourceAsync.empty()
-        : getCurrentRouteOption(context) == asyncErrors
-            ? DessertDataSourceAsync.error()
-            : DessertDataSourceAsync();
+    if (_dessertsDataSource == null) {
+      _dessertsDataSource = getCurrentRouteOption(context) == noData
+          ? DessertDataSourceAsync.empty()
+          : getCurrentRouteOption(context) == asyncErrors
+              ? DessertDataSourceAsync.error()
+              : DessertDataSourceAsync();
+    }
 
     if (getCurrentRouteOption(context) == goToLast) {
       _dataSourceLoading = true;
@@ -93,41 +92,41 @@ class AsyncPaginatedDataTable2DemoState
   List<DataColumn> get _columns {
     return [
       DataColumn(
-        label: const Text('Desert'),
+        label: Text('Desert'),
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Calories'),
+        label: Text('Calories'),
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Fat (gm)'),
+        label: Text('Fat (gm)'),
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Carbs (gm)'),
+        label: Text('Carbs (gm)'),
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Protein (gm)'),
+        label: Text('Protein (gm)'),
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Sodium (mg)'),
+        label: Text('Sodium (mg)'),
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Calcium (%)'),
+        label: Text('Calcium (%)'),
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Iron (%)'),
+        label: Text('Iron (%)'),
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
@@ -136,12 +135,12 @@ class AsyncPaginatedDataTable2DemoState
 
   // Use global key to avoid rebuilding state of _TitledRangeSelector
   // upon AsyncPaginatedDataTable2 refreshes, e.g. upon page switches
-  final GlobalKey _rangeSelectorKey = GlobalKey();
+  GlobalKey _rangeSelectorKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     // Last ppage example uses extra API call to get the number of items in datasource
-    if (_dataSourceLoading) return const SizedBox();
+    if (_dataSourceLoading) return SizedBox();
 
     return Stack(alignment: Alignment.bottomCenter, children: [
       AsyncPaginatedDataTable2(
@@ -154,7 +153,7 @@ class AsyncPaginatedDataTable2DemoState
               mainAxisSize: MainAxisSize.max,
               children: [
                 _TitledRangeSelector(
-                    range: const RangeValues(150, 600),
+                    range: RangeValues(150, 600),
                     onChanged: (v) {
                       // If the curren row/current page happens to be larger than
                       // the total rows/total number of pages what would happen is determined by
@@ -168,10 +167,10 @@ class AsyncPaginatedDataTable2DemoState
                   Row(children: [
                     OutlinedButton(
                         onPressed: () => _controller.goToPageWithRow(25),
-                        child: const Text('Go to row 25')),
+                        child: Text('Go to row 25')),
                     OutlinedButton(
                         onPressed: () => _controller.goToRow(5),
-                        child: const Text('Go to row 5'))
+                        child: Text('Go to row 5'))
                   ]),
                 if (getCurrentRouteOption(context) == custPager)
                   PageNumber(controller: _controller)
@@ -187,12 +186,12 @@ class AsyncPaginatedDataTable2DemoState
           minWidth: 800,
           fit: FlexFit.tight,
           border: TableBorder(
-              top: const BorderSide(color: Colors.black),
+              top: BorderSide(color: Colors.black),
               bottom: BorderSide(color: Colors.grey[300]!),
               left: BorderSide(color: Colors.grey[300]!),
               right: BorderSide(color: Colors.grey[300]!),
               verticalInside: BorderSide(color: Colors.grey[300]!),
-              horizontalInside: const BorderSide(color: Colors.grey, width: 1)),
+              horizontalInside: BorderSide(color: Colors.grey, width: 1)),
           onRowsPerPageChanged: (value) {
             // No need to wrap into setState, it will be called inside the widget
             // and trigger rebuild
@@ -207,8 +206,6 @@ class AsyncPaginatedDataTable2DemoState
           },
           sortColumnIndex: _sortColumnIndex,
           sortAscending: _sortAscending,
-          sortArrowIcon: Icons.keyboard_arrow_up,
-          sortArrowAnimationDuration: const Duration(milliseconds: 0),
           onSelectAll: (select) => select != null && select
               ? (getCurrentRouteOption(context) != selectAllPage
                   ? _dessertsDataSource!.selectAll()
@@ -221,9 +218,9 @@ class AsyncPaginatedDataTable2DemoState
           columns: _columns,
           empty: Center(
               child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(20),
                   color: Colors.grey[200],
-                  child: const Text('No data'))),
+                  child: Text('No data'))),
           loading: _Loading(),
           errorBuilder: (e) => _ErrorAndRetry(
               e.toString(), () => _dessertsDataSource!.refreshDatasource()),
@@ -235,7 +232,7 @@ class AsyncPaginatedDataTable2DemoState
 }
 
 class _ErrorAndRetry extends StatelessWidget {
-  const _ErrorAndRetry(this.errorMessage, this.retry);
+  _ErrorAndRetry(this.errorMessage, this.retry);
 
   final String errorMessage;
   final void Function() retry;
@@ -243,18 +240,17 @@ class _ErrorAndRetry extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
         child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             height: 70,
             color: Colors.red,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Oops! $errorMessage',
-                      style: const TextStyle(color: Colors.white)),
+                      style: TextStyle(color: Colors.white)),
                   TextButton(
                       onPressed: retry,
-                      child:
-                          Row(mainAxisSize: MainAxisSize.min, children: const [
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(
                           Icons.refresh,
                           color: Colors.white,
@@ -277,26 +273,25 @@ class __LoadingState extends State<_Loading> {
         color: Colors.white.withAlpha(128),
         // at first show shade, if loading takes longer than 0,5s show spinner
         child: FutureBuilder(
-            future:
-                Future.delayed(const Duration(milliseconds: 500), () => true),
+            future: Future.delayed(Duration(milliseconds: 500), () => true),
             builder: (context, snapshot) {
               return !snapshot.hasData
-                  ? const SizedBox()
+                  ? SizedBox()
                   : Center(
                       child: Container(
                       color: Colors.yellow,
-                      padding: const EdgeInsets.all(7),
-                      width: 150,
-                      height: 50,
+                      padding: EdgeInsets.all(7),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: const [
+                          children: [
                             CircularProgressIndicator(
                               strokeWidth: 2,
                               color: Colors.black,
                             ),
                             Text('Loading..')
                           ]),
+                      width: 150,
+                      height: 50,
                     ));
             }));
   }
@@ -304,15 +299,18 @@ class __LoadingState extends State<_Loading> {
 
 class _TitledRangeSelector extends StatefulWidget {
   const _TitledRangeSelector(
-      {super.key,
+      {this.key,
       required this.onChanged,
       this.title = "",
       this.caption = "",
-      this.range = const RangeValues(0, 100)});
+      this.range = const RangeValues(0, 100),
+      this.titleToSelectorSwitch = const Duration(seconds: 2)});
+
+  final Key? key;
 
   final String title;
   final String caption;
-  final Duration titleToSelectorSwitch = const Duration(seconds: 2);
+  final Duration titleToSelectorSwitch;
   final RangeValues range;
   final Function(RangeValues) onChanged;
 
@@ -342,26 +340,31 @@ class _TitledRangeSelectorState extends State<_TitledRangeSelector> {
     return Stack(alignment: Alignment.centerLeft, children: [
       AnimatedOpacity(
           opacity: _titleVisible ? 1 : 0,
-          duration: const Duration(milliseconds: 1000),
+          duration: Duration(milliseconds: 1000),
           child: Align(
               alignment: Alignment.centerLeft, child: Text(widget.title))),
       AnimatedOpacity(
           opacity: _titleVisible ? 0 : 1,
-          duration: const Duration(milliseconds: 1000),
+          duration: Duration(milliseconds: 1000),
           child: SizedBox(
-              width: 340,
               child: Theme(
-                  data: blackSlider(context),
+                  data: Theme.of(context).copyWith(
+                      sliderTheme: SliderThemeData(
+                          rangeThumbShape:
+                              RoundRangeSliderThumbShape(enabledThumbRadius: 8),
+                          thumbColor: Colors.black,
+                          activeTrackColor: Colors.grey[700],
+                          inactiveTrackColor: Colors.grey[400],
+                          activeTickMarkColor: Colors.white,
+                          inactiveTickMarkColor: Colors.white)),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         DefaultTextStyle(
-                            style: const TextStyle(
-                                fontSize: 15, color: Colors.black),
+                            style: TextStyle(fontSize: 15, color: Colors.black),
                             child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
+                                padding: EdgeInsets.symmetric(horizontal: 20),
                                 child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -390,7 +393,8 @@ class _TitledRangeSelectorState extends State<_TitledRangeSelector> {
                                 widget.onChanged(v);
                               },
                             ))
-                      ]))))
+                      ])),
+              width: 340))
     ]);
   }
 }

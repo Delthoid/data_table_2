@@ -1,6 +1,6 @@
 part of 'paginated_data_table_2.dart';
 
-enum SourceState { none, ok, loading, error }
+enum _SourceState { none, ok, loading, error }
 
 /// AsyncDataTableSource states:
 /// none -> toggle/selectAllOnPage -> include
@@ -22,9 +22,9 @@ class AsyncRowsResponse {
 /// Please overide [AsyncDataTableSource.getRows] and [DataTableSource.selectedRowCount]
 /// to make it legible as a data source.
 abstract class AsyncDataTableSource extends DataTableSource {
-  SourceState _state = SourceState.none;
+  _SourceState _state = _SourceState.none;
 
-  SourceState get state => _state;
+  _SourceState get state => _state;
 
   bool _debouncable = false;
 
@@ -42,7 +42,7 @@ abstract class AsyncDataTableSource extends DataTableSource {
 
   SelectionState get selectionState => _selectionState;
 
-  final Set<LocalKey> _selectionRowKeys = {};
+  Set<LocalKey> _selectionRowKeys = {};
 
   /// Lists rows (their keys) which are treated as eitehr selected or deselected (see [selectionState])
   Set<LocalKey> get selectionRowKeys => _selectionRowKeys;
@@ -69,7 +69,7 @@ abstract class AsyncDataTableSource extends DataTableSource {
     if (row is DataRow2) {
       return DataRow2(
           key: row.key,
-          selected: selected ?? row.selected,
+          selected: selected == null ? row.selected : selected,
           onSelectChanged: row.onSelectChanged,
           color: row.color,
           cells: row.cells,
@@ -80,7 +80,7 @@ abstract class AsyncDataTableSource extends DataTableSource {
 
     return DataRow(
       key: row.key,
-      selected: selected ?? row.selected,
+      selected: selected == null ? row.selected : selected,
       onSelectChanged: row.onSelectChanged,
       color: row.color,
       cells: row.cells,
@@ -247,13 +247,13 @@ abstract class AsyncDataTableSource extends DataTableSource {
         _rows = [];
         _totalRows = 0;
         _firstRowAbsoluteIndex = 0;
-        _state = SourceState.error;
+        _state = _SourceState.error;
         _error = e;
         notifyListeners();
         return;
       }
 
-      _state = SourceState.ok;
+      _state = _SourceState.ok;
       _error = null;
       notifyListeners();
     }
@@ -267,13 +267,13 @@ abstract class AsyncDataTableSource extends DataTableSource {
           _prevFetchCount > 0) {
         _prevFetchSratIndex = startIndex;
         _prevFetchCount = count;
-        _state = SourceState.ok;
+        _state = _SourceState.ok;
         await Future(() => notifyListeners());
         return;
       }
       _prevFetchSratIndex = startIndex;
       _prevFetchCount = count;
-      _state = SourceState.loading;
+      _state = _SourceState.loading;
       await Future(() => notifyListeners());
     }
 
@@ -312,49 +312,79 @@ enum PageSyncApproach { doNothing, goToFirst, goToLast }
 /// convenienece features such as error handling, reloading etc.
 class AsyncPaginatedDataTable2 extends PaginatedDataTable2 {
   AsyncPaginatedDataTable2(
-      {super.key,
-      super.header,
-      super.actions,
-      required super.columns,
-      super.sortColumnIndex,
-      super.sortAscending = true,
-      super.sortArrowAnimationDuration = const Duration(milliseconds: 150),
-      super.sortArrowIcon = Icons.arrow_upward,
-      super.onSelectAll,
-      super.dataRowHeight = kMinInteractiveDimension,
-      super.headingRowColor,
-      super.headingRowHeight = 56,
-      super.horizontalMargin = 24,
-      super.columnSpacing = 56,
-      super.showCheckboxColumn = true,
-      super.showFirstLastButtons = false,
-      super.initialFirstRowIndex = 0,
-      super.onPageChanged,
-      super.rowsPerPage = defaultRowsPerPage,
-      super.availableRowsPerPage = const <int>[
+      {Key? key,
+      Widget? header,
+      List<Widget>? actions,
+      required List<DataColumn> columns,
+      int? sortColumnIndex,
+      bool sortAscending = true,
+      ValueSetter<bool?>? onSelectAll,
+      double dataRowHeight = kMinInteractiveDimension,
+      double headingRowHeight = 56,
+      double horizontalMargin = 24,
+      double columnSpacing = 56,
+      bool showCheckboxColumn = true,
+      bool showFirstLastButtons = false,
+      int initialFirstRowIndex = 0,
+      ValueChanged<int>? onPageChanged,
+      int rowsPerPage = defaultRowsPerPage,
+      List<int> availableRowsPerPage = const <int>[
         defaultRowsPerPage,
         defaultRowsPerPage * 2,
         defaultRowsPerPage * 5,
         defaultRowsPerPage * 10
       ],
-      super.onRowsPerPageChanged,
-      super.dragStartBehavior = DragStartBehavior.start,
-      required super.source,
-      super.checkboxHorizontalMargin,
-      super.wrapInCard = true,
-      super.minWidth,
-      super.fit = FlexFit.tight,
-      super.hidePaginator = false,
-      super.controller,
-      super.scrollController,
-      super.empty,
+      ValueChanged<int?>? onRowsPerPageChanged,
+      DragStartBehavior dragStartBehavior = DragStartBehavior.start,
+      required AsyncDataTableSource source,
+      double? checkboxHorizontalMargin,
+      bool wrapInCard = true,
+      double? minWidth,
+      FlexFit fit = FlexFit.tight,
+      bool hidePaginator = false,
+      PaginatorController? controller,
+      ScrollController? scrollController,
+      Widget? empty,
       this.loading,
       this.errorBuilder,
       this.pageSyncApproach = PageSyncApproach.doNothing,
-      super.border,
-      super.autoRowsToHeight = false,
-      super.smRatio = 0.67,
-      super.lmRatio = 1.2});
+      TableBorder? border,
+      bool autoRowsToHeight = false,
+      double smRatio = 0.67,
+      double lmRatio = 1.2})
+      : super(
+            key: key,
+            header: header,
+            actions: actions,
+            columns: columns,
+            sortColumnIndex: sortColumnIndex,
+            sortAscending: sortAscending,
+            onSelectAll: onSelectAll,
+            dataRowHeight: dataRowHeight,
+            headingRowHeight: headingRowHeight,
+            horizontalMargin: horizontalMargin,
+            columnSpacing: columnSpacing,
+            showCheckboxColumn: showCheckboxColumn,
+            showFirstLastButtons: showFirstLastButtons,
+            initialFirstRowIndex: initialFirstRowIndex,
+            onPageChanged: onPageChanged,
+            rowsPerPage: rowsPerPage,
+            availableRowsPerPage: availableRowsPerPage,
+            onRowsPerPageChanged: onRowsPerPageChanged,
+            dragStartBehavior: dragStartBehavior,
+            source: source,
+            checkboxHorizontalMargin: checkboxHorizontalMargin,
+            wrapInCard: wrapInCard,
+            minWidth: minWidth,
+            fit: fit,
+            hidePaginator: hidePaginator,
+            controller: controller,
+            scrollController: scrollController,
+            empty: empty,
+            border: border,
+            autoRowsToHeight: autoRowsToHeight,
+            smRatio: smRatio,
+            lmRatio: lmRatio);
 
   /// Widget that is goin to be displayed while loading is in progress
   /// If no widget is specified the following defaul widget will be disoplayed:
@@ -400,11 +430,10 @@ class AsyncPaginatedDataTable2State extends PaginatedDataTable2State {
       // if row requested happens to be outside the available range - change it to the last aligned page
       if (rowIndex > _rowCount - 1) {
         _rowIndexRequested = _lastAligned(rowIndex);
-      } else {
+      } else
         _rowIndexRequested = align
             ? _alignRowIndex(rowIndex, _effectiveRowsPerPage)
             : math.max(math.min(_rowCount - 1, rowIndex), 0);
-      }
       var source = widget.source as AsyncDataTableSource;
       source._fetchData(_rowIndexRequested, _effectiveRowsPerPage);
     }
@@ -439,7 +468,7 @@ class AsyncPaginatedDataTable2State extends PaginatedDataTable2State {
         x,
         w.loading != null
             ? w.loading!
-            : const Center(
+            : Center(
                 child: SizedBox(
                     width: 64, height: 16, child: LinearProgressIndicator())),
       ]);
@@ -447,24 +476,23 @@ class AsyncPaginatedDataTable2State extends PaginatedDataTable2State {
 
     source._debouncable = widget.autoRowsToHeight;
 
-    if (source.state == SourceState.none) {
+    if (source.state == _SourceState.none) {
       _showNothing = true;
       var x = super.build(context);
 
-      if (!widget.autoRowsToHeight) {
+      if (!widget.autoRowsToHeight)
         source._fetchData(_firstRowIndex, _effectiveRowsPerPage);
-      }
 
       return x;
-    } else if (source.state == SourceState.loading) {
+    } else if (source.state == _SourceState.loading) {
       //_showNothing = true;
 
       return loading();
-    } else if (source.state == SourceState.error) {
+    } else if (source.state == _SourceState.error) {
       _showNothing = true;
       return w.errorBuilder != null
           ? w.errorBuilder!(source._error)
-          : const SizedBox();
+          : SizedBox();
     }
 
     // SourceState.ok

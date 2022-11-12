@@ -12,17 +12,15 @@ String getCurrentRouteOption(BuildContext context) {
   return isEmpty;
 }
 
-// Route options
 const dflt = 'Default';
 const noData = 'No data';
 const autoRows = 'Auto rows';
-const showBordersWithZebraStripes = 'Borders with Zebra';
+const showBorders = 'Borders';
 const custPager = 'Custom pager';
 const defaultSorting = 'Default sorting';
 const selectAllPage = 'Select all at page';
 const rowTaps = 'Row Taps';
 const rowHeightOverrides = 'Row height overrides';
-const fixedColumnWidth = 'Fixed column width';
 
 /// Async sample that emulates network error and allow retrying load operation
 const asyncErrors = "Errors/Retries";
@@ -32,14 +30,7 @@ const goToLast = "Start at last page";
 
 /// Configurations available to given example routes
 const Map<String, List<String>> routeOptions = {
-  '/datatable2': [
-    dflt,
-    noData,
-    showBordersWithZebraStripes,
-    fixedColumnWidth,
-    rowTaps,
-    rowHeightOverrides
-  ],
+  '/datatable2': [dflt, noData, showBorders, rowTaps, rowHeightOverrides],
   '/paginated2': [dflt, noData, autoRows, custPager, defaultSorting],
   '/asyncpaginated2': [
     dflt,

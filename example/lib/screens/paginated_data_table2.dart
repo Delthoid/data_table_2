@@ -1,12 +1,10 @@
-// ignore_for_file: avoid_print
-
+import 'package:example/custom_pager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 
 import '../data_sources.dart';
 import '../nav_helper.dart';
-import '../custom_pager.dart';
 
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -16,13 +14,14 @@ import '../custom_pager.dart';
 // Changes and modifications by Maxim Saplin, 2021
 
 class PaginatedDataTable2Demo extends StatefulWidget {
-  const PaginatedDataTable2Demo({super.key});
+  const PaginatedDataTable2Demo();
 
   @override
-  PaginatedDataTable2DemoState createState() => PaginatedDataTable2DemoState();
+  _PaginatedDataTable2DemoState createState() =>
+      _PaginatedDataTable2DemoState();
 }
 
-class PaginatedDataTable2DemoState extends State<PaginatedDataTable2Demo> {
+class _PaginatedDataTable2DemoState extends State<PaginatedDataTable2Demo> {
   int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   bool _sortAscending = true;
   int? _sortColumnIndex;
@@ -67,48 +66,48 @@ class PaginatedDataTable2DemoState extends State<PaginatedDataTable2Demo> {
   List<DataColumn> get _columns {
     return [
       DataColumn(
-        label: const Text('Desert'),
+        label: Text('Desert'),
         onSort: (columnIndex, ascending) =>
             sort<String>((d) => d.name, columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Calories'),
+        label: Text('Calories'),
         numeric: true,
         onSort: (columnIndex, ascending) =>
             sort<num>((d) => d.calories, columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Fat (gm)'),
+        label: Text('Fat (gm)'),
         numeric: true,
         onSort: (columnIndex, ascending) =>
             sort<num>((d) => d.fat, columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Carbs (gm)'),
+        label: Text('Carbs (gm)'),
         numeric: true,
         onSort: (columnIndex, ascending) =>
             sort<num>((d) => d.carbs, columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Protein (gm)'),
+        label: Text('Protein (gm)'),
         numeric: true,
         onSort: (columnIndex, ascending) =>
             sort<num>((d) => d.protein, columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Sodium (mg)'),
+        label: Text('Sodium (mg)'),
         numeric: true,
         onSort: (columnIndex, ascending) =>
             sort<num>((d) => d.sodium, columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Calcium (%)'),
+        label: Text('Calcium (%)'),
         numeric: true,
         onSort: (columnIndex, ascending) =>
             sort<num>((d) => d.calcium, columnIndex, ascending),
       ),
       DataColumn(
-        label: const Text('Iron (%)'),
+        label: Text('Iron (%)'),
         numeric: true,
         onSort: (columnIndex, ascending) =>
             sort<num>((d) => d.iron, columnIndex, ascending),
@@ -124,19 +123,17 @@ class PaginatedDataTable2DemoState extends State<PaginatedDataTable2Demo> {
         checkboxHorizontalMargin: 12,
         columnSpacing: 0,
         wrapInCard: false,
-        headingRowColor:
-            MaterialStateColor.resolveWith((states) => Colors.grey[200]!),
         header:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          const Text('PaginatedDataTable2'),
+          Text('PaginatedDataTable2'),
           if (kDebugMode && getCurrentRouteOption(context) == custPager)
             Row(children: [
               OutlinedButton(
                   onPressed: () => _controller!.goToPageWithRow(25),
-                  child: const Text('Go to row 25')),
+                  child: Text('Go to row 25')),
               OutlinedButton(
                   onPressed: () => _controller!.goToRow(5),
-                  child: const Text('Go to row 5'))
+                  child: Text('Go to row 5'))
             ]),
           if (getCurrentRouteOption(context) == custPager &&
               _controller != null)
@@ -147,12 +144,12 @@ class PaginatedDataTable2DemoState extends State<PaginatedDataTable2Demo> {
         minWidth: 800,
         fit: FlexFit.tight,
         border: TableBorder(
-            top: const BorderSide(color: Colors.black),
+            top: BorderSide(color: Colors.black),
             bottom: BorderSide(color: Colors.grey[300]!),
             left: BorderSide(color: Colors.grey[300]!),
             right: BorderSide(color: Colors.grey[300]!),
             verticalInside: BorderSide(color: Colors.grey[300]!),
-            horizontalInside: const BorderSide(color: Colors.grey, width: 1)),
+            horizontalInside: BorderSide(color: Colors.grey, width: 1)),
         onRowsPerPageChanged: (value) {
           // No need to wrap into setState, it will be called inside the widget
           // and trigger rebuild
@@ -167,9 +164,6 @@ class PaginatedDataTable2DemoState extends State<PaginatedDataTable2Demo> {
         },
         sortColumnIndex: _sortColumnIndex,
         sortAscending: _sortAscending,
-        sortArrowIcon: Icons.keyboard_arrow_up, // custom arrow
-        sortArrowAnimationDuration:
-            const Duration(milliseconds: 0), // custom animation duration
         onSelectAll: _dessertsDataSource.selectAll,
         controller:
             getCurrentRouteOption(context) == custPager ? _controller : null,
@@ -177,9 +171,9 @@ class PaginatedDataTable2DemoState extends State<PaginatedDataTable2Demo> {
         columns: _columns,
         empty: Center(
             child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 color: Colors.grey[200],
-                child: const Text('No data'))),
+                child: Text('No data'))),
         source: getCurrentRouteOption(context) == noData
             ? DessertDataSource.empty(context)
             : _dessertsDataSource,

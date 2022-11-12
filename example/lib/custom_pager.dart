@@ -3,17 +3,16 @@ import 'package:flutter/material.dart';
 
 class PageNumber extends StatefulWidget {
   const PageNumber({
-    super.key,
     required PaginatorController controller,
   }) : _controller = controller;
 
   final PaginatorController _controller;
 
   @override
-  PageNumberState createState() => PageNumberState();
+  _PageNumberState createState() => _PageNumberState();
 }
 
-class PageNumberState extends State<PageNumber> {
+class _PageNumberState extends State<PageNumber> {
   void update() {
     setState(() {});
   }
@@ -47,15 +46,15 @@ class PageNumberState extends State<PageNumber> {
 }
 
 class CustomPager extends StatefulWidget {
-  const CustomPager(this.controller, {super.key});
+  const CustomPager(this.controller);
 
   final PaginatorController controller;
 
   @override
-  CustomPagerState createState() => CustomPagerState();
+  _CustomPagerState createState() => _CustomPagerState();
 }
 
-class CustomPagerState extends State<CustomPager> {
+class _CustomPagerState extends State<CustomPager> {
   static const List<int> _availableSizes = [3, 5, 10, 20];
 
   @override
@@ -69,8 +68,41 @@ class CustomPagerState extends State<CustomPager> {
   @override
   Widget build(BuildContext context) {
     // skip this build pass
-    if (!widget.controller.isAttached) return const SizedBox();
+    if (!widget.controller.isAttached) return SizedBox();
     return Container(
+      child: Theme(
+          data: Theme.of(context).copyWith(
+              iconTheme: IconThemeData(color: Colors.white),
+              textTheme: TextTheme(subtitle1: TextStyle(color: Colors.white))),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                  onPressed: () => widget.controller.goToFirstPage(),
+                  icon: Icon(Icons.skip_previous)),
+              IconButton(
+                  onPressed: () => widget.controller.goToPreviousPage(),
+                  icon: Icon(Icons.chevron_left_sharp)),
+              DropdownButton<int>(
+                  onChanged: (v) => widget.controller.setRowsPerPage(v!),
+                  value: _availableSizes.contains(widget.controller.rowsPerPage)
+                      ? widget.controller.rowsPerPage
+                      : _availableSizes[0],
+                  dropdownColor: Colors.grey[800],
+                  items: _availableSizes
+                      .map((s) => DropdownMenuItem<int>(
+                            child: Text(s.toString()),
+                            value: s,
+                          ))
+                      .toList()),
+              IconButton(
+                  onPressed: () => widget.controller.goToNextPage(),
+                  icon: Icon(Icons.chevron_right_sharp)),
+              IconButton(
+                  onPressed: () => widget.controller.goToLastPage(),
+                  icon: Icon(Icons.skip_next))
+            ],
+          )),
       width: 220,
       height: 40,
       decoration: BoxDecoration(
@@ -80,44 +112,10 @@ class CustomPagerState extends State<CustomPager> {
           BoxShadow(
             color: Colors.black.withAlpha(100),
             blurRadius: 4,
-            offset: const Offset(4, 8), // Shadow position
+            offset: Offset(4, 8), // Shadow position
           ),
         ],
       ),
-      child: Theme(
-          data: Theme.of(context).copyWith(
-              iconTheme: const IconThemeData(color: Colors.white),
-              textTheme:
-                  const TextTheme(subtitle1: TextStyle(color: Colors.white))),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                  onPressed: () => widget.controller.goToFirstPage(),
-                  icon: const Icon(Icons.skip_previous)),
-              IconButton(
-                  onPressed: () => widget.controller.goToPreviousPage(),
-                  icon: const Icon(Icons.chevron_left_sharp)),
-              DropdownButton<int>(
-                  onChanged: (v) => widget.controller.setRowsPerPage(v!),
-                  value: _availableSizes.contains(widget.controller.rowsPerPage)
-                      ? widget.controller.rowsPerPage
-                      : _availableSizes[0],
-                  dropdownColor: Colors.grey[800],
-                  items: _availableSizes
-                      .map((s) => DropdownMenuItem<int>(
-                            value: s,
-                            child: Text(s.toString()),
-                          ))
-                      .toList()),
-              IconButton(
-                  onPressed: () => widget.controller.goToNextPage(),
-                  icon: const Icon(Icons.chevron_right_sharp)),
-              IconButton(
-                  onPressed: () => widget.controller.goToLastPage(),
-                  icon: const Icon(Icons.skip_next))
-            ],
-          )),
     );
   }
 }

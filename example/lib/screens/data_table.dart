@@ -10,13 +10,13 @@ import '../data_sources.dart';
 // Changes and modifications by Maxim Saplin, 2021
 
 class DataTableDemo extends StatefulWidget {
-  const DataTableDemo({super.key});
+  const DataTableDemo();
 
   @override
-  DataTableDemoState createState() => DataTableDemoState();
+  _DataTableDemoState createState() => _DataTableDemoState();
 }
 
-class DataTableDemoState extends State<DataTableDemo> with RestorationMixin {
+class _DataTableDemoState extends State<DataTableDemo> with RestorationMixin {
   final RestorableDessertSelections _dessertSelections =
       RestorableDessertSelections();
   final RestorableInt _rowIndex = RestorableInt(0);
@@ -124,48 +124,48 @@ class DataTableDemoState extends State<DataTableDemo> with RestorationMixin {
                   onSelectAll: _dessertsDataSource.selectAll,
                   columns: [
                     DataColumn(
-                      label: const Text('Desert'),
+                      label: Text('Desert'),
                       onSort: (columnIndex, ascending) =>
                           _sort<String>((d) => d.name, columnIndex, ascending),
                     ),
                     DataColumn(
-                      label: const Text('Calories'),
+                      label: Text('Calories'),
                       numeric: true,
                       onSort: (columnIndex, ascending) =>
                           _sort<num>((d) => d.calories, columnIndex, ascending),
                     ),
                     DataColumn(
-                      label: const Text('Fat (gm)'),
+                      label: Text('Fat (gm)'),
                       numeric: true,
                       onSort: (columnIndex, ascending) =>
                           _sort<num>((d) => d.fat, columnIndex, ascending),
                     ),
                     DataColumn(
-                      label: const Text('Carbs (gm)'),
+                      label: Text('Carbs (gm)'),
                       numeric: true,
                       onSort: (columnIndex, ascending) =>
                           _sort<num>((d) => d.carbs, columnIndex, ascending),
                     ),
                     DataColumn(
-                      label: const Text('Protein (gm)'),
+                      label: Text('Protein (gm)'),
                       numeric: true,
                       onSort: (columnIndex, ascending) =>
                           _sort<num>((d) => d.protein, columnIndex, ascending),
                     ),
                     DataColumn(
-                      label: const Text('Sodium (mg)'),
+                      label: Text('Sodium (mg)'),
                       numeric: true,
                       onSort: (columnIndex, ascending) =>
                           _sort<num>((d) => d.sodium, columnIndex, ascending),
                     ),
                     DataColumn(
-                      label: const Text('Calcium (%)'),
+                      label: Text('Calcium (%)'),
                       numeric: true,
                       onSort: (columnIndex, ascending) =>
                           _sort<num>((d) => d.calcium, columnIndex, ascending),
                     ),
                     DataColumn(
-                      label: const Text('Iron (%)'),
+                      label: Text('Iron (%)'),
                       numeric: true,
                       onSort: (columnIndex, ascending) =>
                           _sort<num>((d) => d.iron, columnIndex, ascending),
