@@ -589,7 +589,7 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
             : themeData.textTheme.headline6!
                 .copyWith(fontWeight: FontWeight.w400),
         child: IconTheme.merge(
-          data: const IconThemeData(opacity: 0.54),
+          data: const IconThemeData(),
           child: Ink(
             height: 64.0,
             color:
@@ -730,7 +730,7 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
     return DefaultTextStyle(
       style: footerTextStyle!,
       child: IconTheme.merge(
-        data: const IconThemeData(opacity: 0.54),
+        data: const IconThemeData(),
         child: SizedBox(
           // TODO(bkonyi): this won't handle text zoom correctly,
           //  https://github.com/flutter/flutter/issues/48522
