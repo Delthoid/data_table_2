@@ -682,11 +682,7 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
         // These typographic styles aren't quite the regular ones. We pick the closest ones from the regular
         // list and then tweak them appropriately.
         // See https://material.io/design/components/data-tables.html#tables-within-cards
-        style: _selectedRowCount > 0
-            ? themeData.textTheme.titleMedium!
-                .copyWith(color: themeData.colorScheme.secondary)
-            : themeData.textTheme.titleLarge!
-                .copyWith(fontWeight: FontWeight.w400),
+        style: themeData.textTheme.titleMedium,
         child: IconTheme.merge(
           data: const IconThemeData(),
           child: Ink(
@@ -805,12 +801,13 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
     footerWidgets.addAll(<Widget>[
       Container(width: 32.0),
       Text(
-        localizations.pageRowsInfoTitle(
-          _firstRowIndex + 1,
-          lastRow,
-          _rowCount,
-          _rowCountApproximate,
-        ),
+        '${_firstRowIndex + 1} - $_rowCount'
+        // localizations.pageRowsInfoTitle(
+        //   _firstRowIndex + 1,
+        //   lastRow,
+        //   _rowCount,
+        //   _rowCountApproximate,
+        // ),
       ),
       Container(width: 32.0),
       if (widget.showFirstLastButtons)
