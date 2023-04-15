@@ -687,8 +687,8 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
           data: const IconThemeData(),
           child: Ink(
             height: 64.0,
-            color:
-                _selectedRowCount > 0 ? themeData.secondaryHeaderColor : null,
+            // color:
+            //     _selectedRowCount > 0 ? themeData.secondaryHeaderColor : null,
             child: Padding(
               padding:
                   EdgeInsetsDirectional.only(start: startPadding, end: 14.0),
