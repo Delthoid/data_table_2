@@ -682,7 +682,7 @@ class PaginatedDataTable2State extends State<PaginatedDataTable2> {
         // These typographic styles aren't quite the regular ones. We pick the closest ones from the regular
         // list and then tweak them appropriately.
         // See https://material.io/design/components/data-tables.html#tables-within-cards
-        style: themeData.textTheme.titleMedium,
+        style: themeData.textTheme.titleMedium!,
         child: IconTheme.merge(
           data: const IconThemeData(),
           child: Ink(
