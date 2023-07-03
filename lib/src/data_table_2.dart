@@ -923,7 +923,7 @@ class DataTable2 extends DataTable {
 
               fixedRowsAndCoreCol = Scrollbar(
                   controller: coreHorizontalController,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
                     ScrollConfiguration(
                         behavior: ScrollConfiguration.of(context)
                             .copyWith(scrollbars: false),
